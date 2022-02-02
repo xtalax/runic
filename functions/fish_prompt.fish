@@ -14,17 +14,37 @@ set -q scm_prompt_blacklist; or set scm_prompt_blacklist
 # ===========================
 
   # Set color for variables in prompt
+
+# ! sanmiize output to check if it's a valid color
+function posix-source
+	for i in (cat $argv)
+    if string match -r -q "color[0-9]{1,2}=\'#(?:[0-9,a-f,A-F]{6})\'" $i
+      set arr (echo $i |tr = \n)
+      set -gx $arr[1] (string sub --start=-7 --length 6 $arr[2])
+    end
+  end
+end
+
+
+posix-source $HOME/.cache/wal/colors.sh
+
 set -g normal normal
-set -g white B4C6D2
-set -g turquoise 598C92
-set -g orange FE7040
-set -g yellow FFB15B
-set -g hotpink DF005F
-set -g blue 6087AE
-set -g limegreen C0BB49
-set -g purple 8D507A
-set -g red e70e0e
-set -g black 2c2d39
+set -g white $color15
+set -g black $color0
+set -g red $red
+set -g green $color2
+set -g orange $color1
+set -g blue $color4
+set -g purple $color5
+set -g cyan $color6
+set -g gray $color7
+set -g darkgray $color8
+set -g brightred $color9
+set -g brightgreen $color10
+set -g yellow $color3
+set -g brightblue $color12
+set -g magenta $color13
+
 
 set -g isleft 1
 
@@ -32,28 +52,28 @@ set -g bold (tput bold)#
 set -g line (tput sgr0)
 
 set -q color_virtual_env_bg; or set color_virtual_env_bg $white
-set -q color_virtual_env_str; or set color_virtual_env_str black
-set -q color_user_bg; or set color_user_bg black
+set -q color_virtual_env_str; or set color_virtual_env_str $black
+set -q color_user_bg; or set color_user_bg $black
 set -q color_user_str; or set color_user_str $yellow
 set -q color_dir_bg; or set color_dir_bg $blue
-set -q color_dir_str; or set color_dir_str black
+set -q color_dir_str; or set color_dir_str $black
 set -q color_hg_changed_bg; or set color_hg_changed_bg $yellow
-set -q color_hg_changed_str; or set color_hg_changed_str black
-set -q color_hg_bg; or set color_hg_bg green
-set -q color_hg_str; or set color_hg_str black
+set -q color_hg_changed_str; or set color_hg_changed_str $black
+set -q color_hg_bg; or set color_hg_bg $green
+set -q color_hg_str; or set color_hg_str $black
 set -q color_git_dirty_bg; or set color_git_dirty_bg $yellow
-set -q color_git_dirty_str; or set color_git_dirty_str black
-set -q color_git_bg; or set color_git_bg green
-set -q color_git_str; or set color_git_str black
-set -q color_svn_bg; or set color_svn_bg green
-set -q color_svn_str; or set color_svn_str black
-set -q color_status_nonzero_bg; or set color_status_nonzero_bg black
+set -q color_git_dirty_str; or set color_git_dirty_str $black
+set -q color_git_bg; or set color_git_bg $green
+set -q color_git_str; or set color_git_str $black
+set -q color_svn_bg; or set color_svn_bg $green
+set -q color_svn_str; or set color_svn_str $black
+set -q color_status_nonzero_bg; or set color_status_nonzero_bg $black
 set -q color_status_nonzero_str; or set color_status_nonzero_str $red
-set -q color_status_superuser_bg; or set color_status_superuser_bg black
+set -q color_status_superuser_bg; or set color_status_superuser_bg $black
 set -q color_status_superuser_str; or set color_status_superuser_str $yellow
-set -q color_status_jobs_bg; or set color_status_jobs_bg black
-set -q color_status_jobs_str; or set color_status_jobs_str $turquoise
-set -q color_status_private_bg; or set color_status_private_bg black
+set -q color_status_jobs_bg; or set color_status_jobs_bg $black
+set -q color_status_jobs_str; or set color_status_jobs_str $cyan
+set -q color_status_private_bg; or set color_status_private_bg $black
 set -q color_status_private_str; or set color_status_private_str $purple
 
 # ===========================
@@ -105,31 +125,27 @@ function prompt_segment -d "Function to draw a segment"
   if [ -n "$argv[3]" ]
     if [ -n "$argv[1]" ]
       set bg $argv[1]
+      set current_bg $argv[1]
     else
-      set bg normal
+      set bg $normal
+      set current_bg $normal
     end
     if [ -n "$argv[2]" ]
       set fg $argv[2]
     else
-      set fg normal
+      set fg $normal
     end
-    if [ "$argv[1]" != "$current_bg" -a $argv[3] != "" ]
-      set_color -b $normal
-      if [ (id -u) -eq 0 ]
-        echo -n (set_color $red)'─'
-      else
-        echo -n (set_color $purple)'─'
-      end
-      set_color $bg
-      echo -n "$right_segment_separator"
-      set_color -b $bg
-      set_color $fg
+    if [ (id -u) -eq 0 ]
+      set_color -b $normal  
+      echo -n (set_color $red)'─'
     else
-      set_color -b $bg
-      set_color $fg
-      echo -n " "
+      set_color -b $normal  
+      echo -n (set_color $purple)'─'
     end
-    set current_bg $argv[1]
+    set_color $bg
+    echo -n "$right_segment_separator"
+    set_color -b $bg
+    set_color $fg
     echo -n -s -e $argv[3]
     set_color normal
     set_color $current_bg
@@ -289,9 +305,9 @@ function fish_prompt
   end
   if not set -q __fish_prompt_char
     if [ (id -u) -eq 0 ]
-      set -g __fish_prompt_char '#'
+      set -gx __fish_prompt_char '#'
     else  
-      set -g __fish_prompt_char 'ᛝ'
+      set -gx __fish_prompt_char 'ᛝ'
     end
   end
 
@@ -305,7 +321,7 @@ function fish_prompt
     prompt_segment $normal $white $location
     prompt_segment $orange $black $__fish_prompt_hostname
     prompt_segment $normal $white ' in '
-    prompt_segment $limegreen $black (pwd|sed "s=$HOME=⌁=")
+    prompt_segment $lightgreen $black (pwd|sed "s=$HOME=⌁=")
     if [ (cwd_in_scm_blacklist | wc -c) -eq 0 ]
       type -q hg;  and prompt_hg
       type -q git; and prompt_git
@@ -323,14 +339,14 @@ function fish_prompt
     if [ $RETVAL -ne 0 ]
       prompt_segment $red $black $__fish_prompt_char 
     else
-      prompt_segment $turquoise $black $__fish_prompt_char 
+      prompt_segment $cyan $black $__fish_prompt_char 
     end
   else # top line > non superuser's
     echo -n (set_color $purple)'╭─'
     prompt_segment $blue $black $current_user
     prompt_ssh
     prompt_segment $orange $black $__fish_prompt_hostname
-    prompt_segment $yellow $turquoise (pwd|sed "s=$HOME=⌁=")
+    prompt_segment $yellow $cyan (pwd|sed "s=$HOME=⌁=")
     if [ (cwd_in_scm_blacklist | wc -c) -eq 0 ]
       type -q hg;  and prompt_hg
       type -q git; and prompt_git
@@ -347,7 +363,7 @@ function fish_prompt
     if [ $RETVAL -ne 0 ]
       prompt_segment $red $black $__fish_prompt_char 
     else
-      prompt_segment $turquoise $black $__fish_prompt_char 
+      prompt_segment $cyan $black $__fish_prompt_char 
     end
     echo -n ' '
   end
@@ -356,7 +372,7 @@ function fish_prompt
   # see:  https://virtualenv.pypa.io/en/latest/reference/#envvar-VIRTUAL_ENV_DISABLE_PROMPT
   # support for virtual env name
   if set -q VIRTUAL_ENV
-      echo -n "($turquoise"(basename "$VIRTUAL_ENV")"$white)"
+      echo -n "($cyan"(basename "$VIRTUAL_ENV")"$white)"
   end
 end
 

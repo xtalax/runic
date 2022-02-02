@@ -19,17 +19,34 @@ set -q cursor_vi_mode_insert; or set cursor_vi_mode_insert bar_steady
 set -q cursor_vi_mode_visual; or set cursor_vi_mode_visual box_steady
 
 # Color Variables
+function posix-source
+	for i in (cat $argv)
+    if string match -r -q "color[0-9]{1,2}=\'#(?:[0-9,a-f,A-F]{6})\'" $i
+      echo $i
+      set arr (echo $i |tr = \n)
+      set -gx $arr[1] (string sub --start=-7 --length 6 $arr[2])
+    end
+  end
+end
+
+posix-source $HOME/.cache/wal/colors.sh
+
 set -g normal normal
-set -g white B4C6D2
-set -g turquoise 598C92
-set -g orange FE7040
-set -g yellow FFB15B
-set -g hotpink DF005F
-set -g blue 6087AE
-set -g limegreen C0BB49
-set -g purple 8D507A
-set -g red e70e0e
-set -g black 2c2d39
+set -g white $color15
+set -g black $color0
+set -g red $color1
+set -g green $color2
+set -g orange $color3
+set -g blue $color4
+set -g purple $color5
+set -g cyan $color6
+set -g gray $color7
+set -g darkgray $color8
+set -g brightred $color9
+set -g brightgreen $color10
+set -g yellow $color11
+set -g brightblue $color12
+set -g magenta $color13
 
 # ===========================
 # Segments functions
@@ -173,7 +190,7 @@ function fish_right_prompt
   if test $exit_code -ne 0
     set code_color $red
   else
-    set code_color $limegreen
+    set code_color $lightgreen
   end
   prompt_right_segment $code_color $black $exit_code
   
