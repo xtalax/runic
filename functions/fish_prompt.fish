@@ -19,6 +19,7 @@ set -g white B4C6D2
 set -g turquoise 598C92
 set -g orange FE7040
 set -g yellow FFB15B
+set -g gold FE9154
 set -g hotpink DF005F
 set -g blue 6087AE
 set -g limegreen C0BB49
@@ -41,7 +42,7 @@ set -q color_hg_changed_bg; or set color_hg_changed_bg $yellow
 set -q color_hg_changed_str; or set color_hg_changed_str black
 set -q color_hg_bg; or set color_hg_bg green
 set -q color_hg_str; or set color_hg_str black
-set -q color_git_dirty_bg; or set color_git_dirty_bg $yellow
+set -q color_git_dirty_bg; or set color_git_dirty_bg $gold
 set -q color_git_dirty_str; or set color_git_dirty_str black
 set -q color_git_bg; or set color_git_bg green
 set -q color_git_str; or set color_git_str black
@@ -113,15 +114,17 @@ function prompt_segment -d "Function to draw a segment"
     else
       set fg normal
     end
-    if [ "$argv[1]" != "$current_bg" -a $argv[3] != "" ]
-      set_color -b $normal
+    if [ "argv[3]" != "" ]
       if [ (id -u) -eq 0 ]
         echo -n (set_color $red)'─'
       else
         echo -n (set_color $purple)'─'
       end
+      set_color -b $normal
       set_color $bg
       echo -n "$right_segment_separator"
+    end
+    if [ "$argv[1]" != "$current_bg" -a $argv[3] != "" ]
       set_color -b $bg
       set_color $fg
     else
